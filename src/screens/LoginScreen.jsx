@@ -100,14 +100,6 @@ export default function LoginScreen({ navigation }) {
       <View style={styles.buttonContainer}>
          <Button title="Entrar" onPress={handleLogin} />
       </View>
-
-      <TouchableOpacity style={styles.cadastroButton} onPress={navigateToCadastro}>
-        <Text style={styles.cadastroButtonText}>
-          Não tem uma conta? Cadastre-se
-        </Text>
-      </TouchableOpacity>
-
-      {/* O bloco antigo que mostrava o tipo de usuário foi removido */}
     </View>
   );
 }
