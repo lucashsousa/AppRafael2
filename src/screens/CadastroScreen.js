@@ -8,7 +8,7 @@ export default function CadastroScreen({ navigation }) {
   const [nome, setNome] = useState('');
   const [email, setEmail] = useState('');
   const [senha, setSenha] = useState('');
-  const [isProfessor, setIsProfessor] = useState(false); // false para 'aluno', true para 'professor'
+  const [isProfessor, setIsProfessor] = useState(false);
 
   const handleCadastro = async () => {
     console.log('handleCadastro chamado');
@@ -18,33 +18,23 @@ export default function CadastroScreen({ navigation }) {
     }
 
     try {
-      // Cria o usuário com Firebase Auth
       const userCredential = await createUserWithEmailAndPassword(auth, email, senha);
       const uid = userCredential.user.uid;
 
-      // Define o tipo de usuário
       const tipoUsuario = isProfessor ? 'professor' : 'aluno';
 
-      // Salva os dados adicionais no Firestore
       await setDoc(doc(db, 'usuarios', uid), {
         nome: nome,
         email: email,
         tipoUsuario: tipoUsuario,
-        avaliador: false // Valor padrão, se aplicável
+        avaliador: false 
       });
 
       Alert.alert("Sucesso", "Usuário cadastrado com sucesso!");
 
-      // Navega para OptionsScreen passando os dados do novo usuário
-      navigation.replace('OptionsScreen', {
-        userId: uid,
-        tipoUsuario: tipoUsuario,
-        avaliador: false
-      });
 
     } catch (error) {
       console.error("Erro ao cadastrar:", error);
-      // Trata erros comuns do Firebase Auth
       if (error.code === 'auth/email-already-in-use') {
         Alert.alert("Erro", "Este email já está em uso.");
       } else if (error.code === 'auth/weak-password') {

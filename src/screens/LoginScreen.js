@@ -7,51 +7,73 @@ import {
   StyleSheet, 
   Alert, 
   ActivityIndicator,
-  TouchableOpacity // 1. Importe o TouchableOpacity
+  TouchableOpacity
 } from 'react-native';
 import { signInWithEmailAndPassword } from 'firebase/auth';
 import { doc, getDoc } from 'firebase/firestore';
-import { auth, db } from '../firebaseConfig';
+import { auth, db } from '../firebaseConfig'; // Certifique-se que o caminho está correto
 
-// 2. Garanta que o componente recebe a prop { navigation }
+// 1. Importe os componentes de tela que você criou.
+// Certifique-se de que os caminhos para os arquivos estão corretos.
+import TelaProfessor from './TelaProfessor';
+import TelaAluno from './TelaAluno';
+
 export default function LoginScreen({ navigation }) { 
   const [email, setEmail] = useState('');
   const [senha, setSenha] = useState('');
-  const [tipoUsuarioLogado, setTipoUsuarioLogado] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [tipoUsuarioLogado, setTipoUsuarioLogado] = useState(null);
 
   const handleLogin = async () => {
     if (!email || !senha) {
       Alert.alert("Erro", "Preencha todos os campos.");
       return;
     }
-    setIsLoading(true);
-    setTipoUsuarioLogado(null);
+    //setIsLoading(true);
     try {
       const userCredential = await signInWithEmailAndPassword(auth, email, senha);
       const uid = userCredential.user.uid;
       const userDocRef = doc(db, 'usuarios', uid);
       const userDoc = await getDoc(userDocRef);
+      
       if (userDoc.exists()) {
         const userData = userDoc.data();
-        setTipoUsuarioLogado(userData.tipoUsuario);
-        Alert.alert("Sucesso", "Login realizado com sucesso!");
+        // 2. Apenas atualiza o estado. A mudança de tela cuidará do feedback.
+        setTipoUsuarioLogado(userData.tipoUsuario); 
       } else {
-        Alert.alert("Erro", "Dados do usuário não encontrados no banco de dados.");
+        Alert.alert("Erro", "Dados do usuário não encontrados.");
+        setIsLoading(false);
       }
     } catch (error) {
       console.error("Erro ao fazer login:", error);
       Alert.alert("Erro", "Email ou senha incorretos.");
-    } finally {
       setIsLoading(false);
     }
   };
 
-  // 3. Função para navegar para a tela de cadastro
   const navigateToCadastro = () => {
     navigation.navigate('Cadastro'); 
   };
+  
+  // 3. Renderiza um indicador de carregamento em tela cheia
+  if (isLoading) {
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color="#007bff" />
+      </View>
+    );
+  }
 
+  // 4. Renderiza a tela correta com base no tipo de usuário logado
+  if (tipoUsuarioLogado === 'professor') {
+    return <TelaProfessor />;
+  }
+  
+  if (tipoUsuarioLogado === 'aluno') {
+    return <TelaAluno />;
+  }
+
+  // 5. Se ninguém estiver logado, mostra o formulário de login
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Tela de Login</Text>
@@ -75,31 +97,21 @@ export default function LoginScreen({ navigation }) {
         secureTextEntry
       />
 
-      {isLoading ? (
-        <ActivityIndicator size="large" color="#0000ff" style={styles.loader} />
-      ) : (
-        <Button title="Entrar" onPress={handleLogin} />
-      )}
+      <View style={styles.buttonContainer}>
+         <Button title="Entrar" onPress={handleLogin} />
+      </View>
 
-      {/* 4. Botão que leva para a tela de cadastro */}
       <TouchableOpacity style={styles.cadastroButton} onPress={navigateToCadastro}>
         <Text style={styles.cadastroButtonText}>
           Não tem uma conta? Cadastre-se
         </Text>
       </TouchableOpacity>
 
-      {tipoUsuarioLogado && (
-        <View style={styles.resultContainer}>
-          <Text style={styles.resultText}>
-            {tipoUsuarioLogado === 'professor' ? 'Professor' : 'Aluno'}
-          </Text>
-        </View>
-      )}
+      {/* O bloco antigo que mostrava o tipo de usuário foi removido */}
     </View>
   );
 }
 
-// 5. Adicione os novos estilos
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -107,48 +119,45 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     justifyContent: 'center',
   },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#fff',
+  },
   title: {
-    fontSize: 24,
+    fontSize: 28,
     fontWeight: 'bold',
     textAlign: 'center',
-    marginBottom: 30,
+    marginBottom: 40,
+    color: '#333',
   },
   label: {
     fontSize: 16,
     marginTop: 12,
+    color: '#555',
   },
   input: {
+    height: 50,
     borderWidth: 1,
     borderColor: '#ccc',
-    borderRadius: 4,
-    padding: 10,
-    marginTop: 4,
-    marginBottom: 10,
+    borderRadius: 8,
+    paddingHorizontal: 15,
+    marginTop: 6,
+    marginBottom: 12,
+    fontSize: 16,
   },
-  loader: {
-    marginTop: 20,
+  buttonContainer: {
+      marginTop: 10,
+      marginBottom: 20,
   },
-  // Estilo para o botão de cadastro
   cadastroButton: {
-    marginTop: 20,
+    marginTop: 15,
     alignItems: 'center',
   },
   cadastroButtonText: {
     fontSize: 16,
-    color: '#007bff', // Cor azul, típica de links
+    color: '#007bff',
     textDecorationLine: 'underline',
-  },
-  resultContainer: {
-    marginTop: 40,
-    padding: 20,
-    borderRadius: 8,
-    backgroundColor: '#f0f0f0',
-    alignItems: 'center',
-  },
-  resultText: {
-    fontSize: 22,
-    fontWeight: 'bold',
-    textTransform: 'capitalize',
-    color: '#333',
   },
 });
