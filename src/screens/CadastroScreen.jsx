@@ -8,7 +8,6 @@ export default function CadastroScreen({ navigation }) {
   const [nome, setNome] = useState('');
   const [email, setEmail] = useState('');
   const [senha, setSenha] = useState('');
-  const [isProfessor, setIsProfessor] = useState(false);
 
   const handleCadastro = async () => {
     console.log('handleCadastro chamado');
