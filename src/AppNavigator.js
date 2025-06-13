@@ -2,10 +2,9 @@ import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
-import HomeScreen from './screens/HomeScreen';
 import LoginScreen from './screens/LoginScreen';
 import CadastroScreen from './screens/CadastroScreen';
-
+import FormScreen from './screens/FormScreen'
 const Stack = createNativeStackNavigator();
 
 export default function AppNavigation() {
@@ -14,7 +13,7 @@ export default function AppNavigation() {
             <Stack.Navigator initialRouteName="Login">
                 <Stack.Screen name="Login" component={LoginScreen} options={{ title: "Login" }} />
                 <Stack.Screen name="Cadastro" component={CadastroScreen} options={{ title: "Cadastro" }} />
-                <Stack.Screen name="Home" component={HomeScreen} options={{ title: "Menu" }} />
+                <Stack.Screen name="form" component={FormScreen} options={{ title: "form" }} />
             </Stack.Navigator>
         </NavigationContainer>
     );

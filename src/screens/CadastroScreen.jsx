@@ -21,17 +21,12 @@ export default function CadastroScreen({ navigation }) {
       const userCredential = await createUserWithEmailAndPassword(auth, email, senha);
       const uid = userCredential.user.uid;
 
-      const tipoUsuario = isProfessor ? 'professor' : 'aluno';
-
       await setDoc(doc(db, 'usuarios', uid), {
         nome: nome,
         email: email,
-        tipoUsuario: tipoUsuario,
-        avaliador: false 
       });
 
       Alert.alert("Sucesso", "Usuário cadastrado com sucesso!");
-
 
     } catch (error) {
       console.error("Erro ao cadastrar:", error);
@@ -74,18 +69,6 @@ export default function CadastroScreen({ navigation }) {
         placeholder="Crie uma senha"
         secureTextEntry
       />
-
-      <View style={styles.switchContainer}>
-        <Text style={styles.label}>É um professor?</Text>
-        <Switch
-          trackColor={{ false: "#767577", true: "#81b0ff" }}
-          thumbColor={isProfessor ? "#f5dd4b" : "#f4f3f4"}
-          ios_backgroundColor="#3e3e3e"
-          onValueChange={() => setIsProfessor(previousState => !previousState)}
-          value={isProfessor}
-        />
-      </View>
-
       <Button title="Cadastrar" onPress={handleCadastro} />
     </View>
   );

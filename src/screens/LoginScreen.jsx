@@ -1,61 +1,63 @@
 import React, { useState } from 'react';
-import { 
-  View, 
-  Text, 
-  TextInput, 
-  Button, 
-  StyleSheet, 
-  Alert, 
+import {
+  View,
+  Text,
+  TextInput,
+  Button,
+  StyleSheet,
+  Alert,
   ActivityIndicator,
-  TouchableOpacity
+  TouchableOpacity,
 } from 'react-native';
+
+// As importações do Firebase SDK para Web/Expo estão corretas.
 import { signInWithEmailAndPassword } from 'firebase/auth';
-import { doc, getDoc } from 'firebase/firestore';
-import { auth, db } from '../firebaseConfig'; // Certifique-se que o caminho está correto
 
-// 1. Importe os componentes de tela que você criou.
-// Certifique-se de que os caminhos para os arquivos estão corretos.
-import TelaProfessor from './TelaProfessor';
-import TelaAluno from './TelaAluno';
+// A importação do firestore não é mais necessária nesta tela
+// import { doc, getDoc } from 'firebase/firestore';
 
-export default function LoginScreen({ navigation }) { 
+// Importe sua configuração do Firebase (auth)
+import { auth } from '../firebaseConfig';
+
+export default function LoginScreen({ navigation }) {
   const [email, setEmail] = useState('');
   const [senha, setSenha] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [tipoUsuarioLogado, setTipoUsuarioLogado] = useState(null);
 
   const handleLogin = async () => {
     if (!email || !senha) {
-      Alert.alert("Erro", "Preencha todos os campos.");
+      Alert.alert('Erro', 'Preencha todos os campos.');
       return;
     }
-    //setIsLoading(true);
+
+    setIsLoading(true);
+
     try {
+      // 1. Autentica o usuário com o serviço de Autenticação
       const userCredential = await signInWithEmailAndPassword(auth, email, senha);
-      const uid = userCredential.user.uid;
-      const userDocRef = doc(db, 'usuarios', uid);
-      const userDoc = await getDoc(userDocRef);
-      
-      if (userDoc.exists()) {
-        const userData = userDoc.data();
-        // 2. Apenas atualiza o estado. A mudança de tela cuidará do feedback.
-        setTipoUsuarioLogado(userData.tipoUsuario); 
-      } else {
-        Alert.alert("Erro", "Dados do usuário não encontrados.");
-        setIsLoading(false);
-      }
+      console.log('Usuário logado com sucesso! UID:', userCredential.user.uid);
+
+      navigation.navigate('form');
+
     } catch (error) {
-      console.error("Erro ao fazer login:", error);
-      Alert.alert("Erro", "Email ou senha incorretos.");
+      console.error('Erro ao fazer login:', error.code);
+      let errorMessage = 'Ocorreu um erro ao fazer login.';
+      // Erros comuns de autenticação
+      if (error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password' || error.code === 'auth/invalid-credential') {
+        errorMessage = 'Email ou senha inválidos.';
+      } else if (error.code === 'auth/network-request-failed') {
+        errorMessage = 'Erro de conexão. Verifique sua internet.';
+      }
+      Alert.alert('Erro no Login', errorMessage);
+    } finally {
       setIsLoading(false);
     }
   };
 
   const navigateToCadastro = () => {
-    navigation.navigate('Cadastro'); 
+    navigation.navigate('Cadastro');
   };
-  
-  // 3. Renderiza um indicador de carregamento em tela cheia
+
   if (isLoading) {
     return (
       <View style={styles.loadingContainer}>
@@ -64,16 +66,6 @@ export default function LoginScreen({ navigation }) {
     );
   }
 
-  // 4. Renderiza a tela correta com base no tipo de usuário logado
-  if (tipoUsuarioLogado === 'professor') {
-    return <TelaProfessor />;
-  }
-  
-  if (tipoUsuarioLogado === 'aluno') {
-    return <TelaAluno />;
-  }
-
-  // 5. Se ninguém estiver logado, mostra o formulário de login
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Tela de Login</Text>
@@ -98,8 +90,13 @@ export default function LoginScreen({ navigation }) {
       />
 
       <View style={styles.buttonContainer}>
-         <Button title="Entrar" onPress={handleLogin} />
+        <Button title="Entrar" onPress={handleLogin} disabled={isLoading} />
       </View>
+
+      {/* Botão de cadastro como um link de texto para melhor UX */}
+      <TouchableOpacity onPress={navigateToCadastro} style={styles.cadastroButton}>
+        <Text style={styles.cadastroButtonText}>Não tem uma conta? Cadastre-se</Text>
+      </TouchableOpacity>
     </View>
   );
 }
@@ -140,8 +137,8 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   buttonContainer: {
-      marginTop: 10,
-      marginBottom: 20,
+    marginTop: 10,
+    marginBottom: 10,
   },
   cadastroButton: {
     marginTop: 15,

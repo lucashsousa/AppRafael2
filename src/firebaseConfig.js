@@ -3,13 +3,13 @@ import { getFirestore } from 'firebase/firestore';
 import { getAuth } from 'firebase/auth';
 
 const firebaseConfig = {
-  apiKey: "AIzaSyBJlXgar8asDPdIIVw8UZOb9UkW0fCHBQc",
-  authDomain: "atividade2-64cf8.firebaseapp.com",
-  projectId: "atividade2-64cf8",
-  storageBucket: "atividade2-64cf8.firebasestorage.app",
-  messagingSenderId: "27454764510",
-  appId: "1:27454764510:web:072e6916789ba8bdf5994f",
-  measurementId: "G-MQ42853ES7"
+  apiKey: "AIzaSyAQuVq1kayAs4CPXB8R0MP0PZM4AvJicMA",
+  authDomain: "projetoapsrafael.firebaseapp.com",
+  projectId: "projetoapsrafael",
+  storageBucket: "projetoapsrafael.firebasestorage.app",
+  messagingSenderId: "70350899763",
+  appId: "1:70350899763:web:d14517d63e02d4e19c3146",
+  measurementId: "G-7Z0FNCVRFH"
 };
 
 // Inicializa o App
